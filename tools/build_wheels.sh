@@ -36,10 +36,7 @@ python -m pip wheel --no-deps --no-binary=:all: --wheel-dir="$WHEEL_DIR" \
     --no-cache-dir
 
 # Build torchsparse wheel
-
-if [ -f "${script_dir}/../external/torchsparse.patch" ]; then
-    patch -d "${script_dir}/../external/torchsparse/" -p1 < "${script_dir}/../external/torchsparse.patch"
-fi
 python -m pip wheel --no-deps --wheel-dir="$WHEEL_DIR" ${script_dir}/../external/torchsparse/ --no-cache-dir
 
+# Rename all wheels to match the expected file names
 python ${script_dir}/rename_wheels.py "$WHEEL_DIR"
