@@ -28,6 +28,16 @@ def parse_args():
     return parser.parse_args()
 
 
+def get_pytorch_and_numpy_version():
+    import torch
+    import numpy
+
+    pytorch_version = torch.__version__.split("+")[0]
+    numpy_version = numpy.__version__
+
+    return pytorch_version, numpy_version
+
+
 def rename_wheels(directory: str | pathlib.Path):
     directory = pathlib.Path(directory)
     if not directory.is_dir():
@@ -41,7 +51,16 @@ def rename_wheels(directory: str | pathlib.Path):
 
         version = parts[1]
         version = f"{version}.{today}"
-        new_name = "-".join([parts[0], version] + parts[2:])
+
+        try:
+            pytorch_version, numpy_version = get_pytorch_and_numpy_version()
+
+            # Note: Build tag needs to start with a number.
+            build_tag = [f"0torch{pytorch_version}numpy{numpy_version}"]
+        except ImportError:
+            build_tag = []
+
+        new_name = "-".join([parts[0], version] + build_tag + parts[2:])
         new_wheel_path = directory / new_name
         wheel.rename(new_wheel_path)
         logger.info(f"Renamed {wheel.name} to {new_name}")
