@@ -1,0 +1,31 @@
+diff --git a/pyproject.toml b/pyproject.toml
+new file mode 100644
+index 0000000..dd54c10
+--- /dev/null
++++ b/pyproject.toml
+@@ -0,0 +1,11 @@
++[project]
++name = "torchsparse"
++version = "1.4.0"
++
++[build-system]
++requires = ["setuptools", "wheel", "torch<2.6.0", "numpy"]
++build-backend = "setuptools.build_meta"
++pythonpath = ["."]
++
++[tool.setuptools.packages.find]
++include = ["torchsparse*"]  # package names should match these glob patterns (["*"] by default)
+diff --git a/setup.py b/setup.py
+index 299f005..a4cb468 100644
+--- a/setup.py
++++ b/setup.py
+@@ -6,7 +6,8 @@ import torch.cuda
+ from setuptools import find_packages, setup
+ from torch.utils.cpp_extension import (CUDA_HOME, BuildExtension, CppExtension,
+                                        CUDAExtension)
+-
++import sys
++sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+ from torchsparse import __version__
+ 
+ if ((torch.cuda.is_available() and CUDA_HOME is not None)
