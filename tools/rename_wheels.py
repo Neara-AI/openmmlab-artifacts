@@ -3,7 +3,7 @@
 Example:
 
     # Before: mmcv-2.1.0-cp310-cp310-linux_x86_64.whl
-    # After: mmcv-2.1.0.2025.07.09-cp310-cp310-linux_x86_64.whl
+    # After: mmcv-2.1.0.20250709-0torch2.4.1numpy1.26.4-cp310-cp310-linux_x86_64.whl
     # etc.
     $ python tools/rename_wheels.py wheelhouse
 
