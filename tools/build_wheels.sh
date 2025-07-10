@@ -39,4 +39,4 @@ python -m pip wheel --no-deps --no-binary=:all: --wheel-dir="$WHEEL_DIR" \
 python -m pip wheel --no-deps --wheel-dir="$WHEEL_DIR" ${script_dir}/../external/torchsparse/ --no-cache-dir
 
 # Rename all wheels to match the expected file names
-python ${script_dir}/rename_wheels.py "$WHEEL_DIR"
+python ${script_dir}/modify_wheels.py "$WHEEL_DIR"
