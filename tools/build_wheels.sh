@@ -8,7 +8,7 @@ fi
 WHEEL_DIR="$1"
 
 export FORCE_CUDA=1
-export TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0 7.5 8.0 8.6+PTX"
+export TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0 7.5 8.0 8.6+PTX 9.0"
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export MMCV_WITH_OPS=1
 
