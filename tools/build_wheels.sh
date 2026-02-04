@@ -32,7 +32,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # These pip dependencies need to be adjusted to match polez, especially pytorch.
 uv pip install pip setuptools wheel openmim numpy change-wheel-version
 
-uv pip install "torch==${TORCH_VERSION}" torchaudio torchvision --index-url=https://pypi.org/simple --extra-index-url=https://download.pytorch.org/whl/cu${CUDA_VERSION} 
+uv pip install "torch==${TORCH_VERSION}" torchaudio torchvision --index-url=https://pypi.org/simple --extra-index-url=https://download.pytorch.org/whl/cu${CUDA_VERSION} --index-strategy unsafe-best-match
 
 # Build openmmlab wheels
 packages=(
