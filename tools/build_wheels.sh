@@ -4,6 +4,7 @@ set -e
 
 if [ $# -ne 4 ]; then
     echo "Usage: $0 <wheel-dir> <python-version> <torch-version> <cuda-version>"
+    echo "eg: $0 ./dist 3.10 2.4.1 126"
     exit 1
 fi
 
@@ -31,7 +32,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # These pip dependencies need to be adjusted to match polez, especially pytorch.
 uv pip install pip setuptools wheel openmim numpy change-wheel-version
 
-uv pip install "torch==${TORCH_VERSION}" torchaudio torchvision --index-url=https://pypi.org/simple --extra-index-url=https://download.pytorch.org/whl/cu${CUDA_VERSION} --index-strategy unsafe-best-match
+uv pip install "torch==${TORCH_VERSION}" torchaudio torchvision --index-url=https://pypi.org/simple --extra-index-url=https://download.pytorch.org/whl/cu${CUDA_VERSION} 
 
 # Build openmmlab wheels
 packages=(
