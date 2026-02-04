@@ -47,7 +47,7 @@ for package in "${packages[@]}";  do
 done
 
 # Build torchsparse wheel
-# uv run python -m pip wheel --no-deps --wheel-dir="$WHEEL_DIR" ${script_dir}/../external/torchsparse/ --no-cache-dir
+uv run python -m pip wheel --no-deps --no-build-isolation --wheel-dir="$WHEEL_DIR" ${script_dir}/../external/torchsparse/
 
 # Change local version
 TAG="cp${PYTHON_VERSION/[.]/}"
