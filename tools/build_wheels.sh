@@ -16,19 +16,24 @@ export UV_HTTP_TIMEOUT=300
 
 export venvdir=".venv_$(date +%Y.%m.%d_%H.%M.%S)"
 
-uv venv $venvdir --python=3.10
+uv venv $venvdir --python=3.12
 source $venvdir/bin/activate
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # These pip dependencies need to be adjusted to match polez, especially pytorch.
-uv pip install pip setuptools wheel openmim 'numpy<2.0.0'
+# Pin setuptools<70 because mmcv's setup.py imports pkg_resources which was
+# removed in setuptools 70+. We also use --no-build-isolation below so that
+# the build picks up this pinned version.
+uv pip install pip 'setuptools<70' wheel openmim 'numpy<2.0.0'
 
 # Install Pytorch with pip because uv pip install does not work well.
-python -m pip install 'torch==2.4.1' torchaudio torchvision --index-url=https://pypi.org/simple --extra-index-url=https://download.pytorch.org/whl/cu126
+python -m pip install 'torch==2.5.1' torchaudio torchvision --index-url=https://pypi.org/simple --extra-index-url=https://download.pytorch.org/whl/cu124
 
-# Build openmmlab wheels
-python -m pip wheel --no-deps --no-binary=:all: --wheel-dir="$WHEEL_DIR" \
+# Build openmmlab wheels.
+# --no-build-isolation: use the venv's pinned setuptools (with pkg_resources)
+# instead of letting pip install the latest setuptools in an isolated env.
+python -m pip wheel --no-deps --no-binary=:all: --no-build-isolation --wheel-dir="$WHEEL_DIR" \
     'git+https://github.com/open-mmlab/mmcv.git@v2.1.0#egg=mmcv' \
     'git+https://github.com/open-mmlab/mmengine.git@v0.10.7#egg=mmengine' \
     'git+https://github.com/open-mmlab/mmdetection.git@v3.2.0#egg=mmdet' \
