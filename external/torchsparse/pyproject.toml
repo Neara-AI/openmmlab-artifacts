@@ -3,7 +3,7 @@ name = "torchsparse"
 version = "1.4.0"
 
 [build-system]
-requires = ["setuptools", "wheel", "torch<2.6.0", "numpy"]
+requires = ["setuptools", "wheel", "torch==2.7.1", "numpy"]
 build-backend = "setuptools.build_meta"
 pythonpath = ["."]
 

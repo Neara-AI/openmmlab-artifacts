@@ -9,7 +9,7 @@ index 0000000..dd54c10
 +version = "1.4.0"
 +
 +[build-system]
-+requires = ["setuptools", "wheel", "torch<2.6.0", "numpy"]
++requires = ["setuptools", "wheel", "torch==2.7.1", "numpy"]
 +build-backend = "setuptools.build_meta"
 +pythonpath = ["."]
 +
@@ -29,3 +29,96 @@ index 299f005..a4cb468 100644
  from torchsparse import __version__
  
  if ((torch.cuda.is_available() and CUDA_HOME is not None)
+diff --git a/torchsparse/backend/convolution/convolution_cuda.cu b/torchsparse/backend/convolution/convolution_cuda.cu
+index 026f0e7..2c0d75e 100644
+--- a/torchsparse/backend/convolution/convolution_cuda.cu
++++ b/torchsparse/backend/convolution/convolution_cuda.cu
+@@ -136,7 +136,7 @@ void convolution_forward_cuda(at::Tensor in_feat, at::Tensor out_feat,
+     // gather n_active_feats dense features from N sparse input features with c
+     // feature dimensions
+     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-        in_feat.type(), "convolution_forward_cuda", ([&] {
++        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
+           gather_kernel<scalar_t>
+               <<<ceil((double)(n_active_feats * n_in_channels) / 256), 256>>>(
+                   n_active_feats, n_in_feats, n_in_channels,
+@@ -151,7 +151,7 @@ void convolution_forward_cuda(at::Tensor in_feat, at::Tensor out_feat,
+     // scatter n_active_feats dense features into n_out_feats output features of
+     // dimension n_out_channels
+     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-        in_feat.type(), "convolution_forward_cuda", ([&] {
++        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
+           scatter_kernel<scalar_t>
+               <<<ceil((double)(n_active_feats * n_out_channels) / 256), 256>>>(
+                   n_active_feats, n_out_feats, n_out_channels,
+@@ -236,7 +236,7 @@ void convolution_backward_cuda(at::Tensor in_feat, at::Tensor grad_in_feat,
+ 
+     // gather
+     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-        in_feat.type(), "convolution_forward_cuda", ([&] {
++        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
+           gather_kernel<scalar_t>
+               <<<ceil((double)(n_active_feats * n_out_channels) / 256), 256>>>(
+                   n_active_feats, n_out_feats, n_out_channels,
+@@ -246,7 +246,7 @@ void convolution_backward_cuda(at::Tensor in_feat, at::Tensor grad_in_feat,
+         }));
+ 
+     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-        in_feat.type(), "convolution_forward_cuda", ([&] {
++        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
+           gather_kernel<scalar_t>
+               <<<ceil((double)(n_active_feats * n_in_channels) / 256), 256>>>(
+                   n_active_feats, n_in_feats, n_in_channels,
+@@ -264,7 +264,7 @@ void convolution_backward_cuda(at::Tensor in_feat, at::Tensor grad_in_feat,
+ 
+     // scatter
+     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-        in_feat.type(), "convolution_forward_cuda", ([&] {
++        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
+           scatter_kernel<scalar_t>
+               <<<ceil((double)(n_active_feats * n_in_channels) / 256), 256>>>(
+                   n_active_feats, n_in_feats, n_in_channels,
+diff --git a/torchsparse/backend/devoxelize/devoxelize_cuda.cu b/torchsparse/backend/devoxelize/devoxelize_cuda.cu
+index c2c0423..62d6492 100644
+--- a/torchsparse/backend/devoxelize/devoxelize_cuda.cu
++++ b/torchsparse/backend/devoxelize/devoxelize_cuda.cu
+@@ -68,7 +68,7 @@ at::Tensor devoxelize_forward_cuda(const at::Tensor feat,
+       torch::zeros({N, c}, at::device(feat.device()).dtype(feat.dtype()));
+ 
+   AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-      feat.type(), "devoxelize_forward_cuda", ([&] {
++      feat.scalar_type(), "devoxelize_forward_cuda", ([&] {
+         devoxelize_forward_kernel<scalar_t><<<N, c>>>(
+             N, c, indices.data_ptr<int>(), weight.data_ptr<scalar_t>(),
+             feat.data_ptr<scalar_t>(), out.data_ptr<scalar_t>());
+@@ -88,7 +88,7 @@ at::Tensor devoxelize_backward_cuda(const at::Tensor top_grad,
+       {n, c}, at::device(top_grad.device()).dtype(top_grad.dtype()));
+ 
+   AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-      top_grad.type(), "devoxelize_backward_cuda", ([&] {
++      top_grad.scalar_type(), "devoxelize_backward_cuda", ([&] {
+         devoxelize_backward_kernel<scalar_t><<<N, c>>>(
+             N, n, c, indices.data_ptr<int>(), weight.data_ptr<scalar_t>(),
+             top_grad.data_ptr<scalar_t>(), bottom_grad.data_ptr<scalar_t>());
+diff --git a/torchsparse/backend/voxelize/voxelize_cuda.cu b/torchsparse/backend/voxelize/voxelize_cuda.cu
+index a47f605..4b783fe 100644
+--- a/torchsparse/backend/voxelize/voxelize_cuda.cu
++++ b/torchsparse/backend/voxelize/voxelize_cuda.cu
+@@ -51,7 +51,7 @@ at::Tensor voxelize_forward_cuda(const at::Tensor inputs, const at::Tensor idx,
+       torch::zeros({N1, c}, at::device(idx.device()).dtype(inputs.dtype()));
+ 
+   AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-      inputs.type(), "voxelize_forward_cuda", ([&] {
++      inputs.scalar_type(), "voxelize_forward_cuda", ([&] {
+         voxelize_forward_kernel<scalar_t><<<N, c>>>(
+             N, c, N1, inputs.data_ptr<scalar_t>(), idx.data_ptr<int>(),
+             counts.data_ptr<int>(), out.data_ptr<scalar_t>());
+@@ -70,7 +70,7 @@ at::Tensor voxelize_backward_cuda(const at::Tensor top_grad,
+       torch::zeros({N, c}, at::device(idx.device()).dtype(top_grad.dtype()));
+ 
+   AT_DISPATCH_FLOATING_TYPES_AND_HALF(
+-      top_grad.type(), "voxelize_backward_cuda", ([&] {
++      top_grad.scalar_type(), "voxelize_backward_cuda", ([&] {
+         voxelize_backward_kernel<scalar_t><<<N, c>>>(
+             N, c, N1, top_grad.data_ptr<scalar_t>(), idx.data_ptr<int>(),
+             counts.data_ptr<int>(), bottom_grad.data_ptr<scalar_t>());

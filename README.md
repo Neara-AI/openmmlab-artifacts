@@ -4,6 +4,9 @@
 
 ### Build Wheel Files
 
+Prerequisites: CUDA toolkit 12.8 or newer 12.x on `PATH` with `CUDA_HOME` set (torch 2.7.1+cu128
+refuses to build extensions with CUDA 13), and `libsparsehash-dev` for torchsparse.
+
 To build the wheel files:
 
 ```sh
