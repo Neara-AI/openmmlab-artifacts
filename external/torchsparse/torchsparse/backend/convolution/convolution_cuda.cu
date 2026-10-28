@@ -136,7 +136,7 @@ void convolution_forward_cuda(at::Tensor in_feat, at::Tensor out_feat,
     // gather n_active_feats dense features from N sparse input features with c
     // feature dimensions
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        in_feat.type(), "convolution_forward_cuda", ([&] {
+        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
           gather_kernel<scalar_t>
               <<<ceil((double)(n_active_feats * n_in_channels) / 256), 256>>>(
                   n_active_feats, n_in_feats, n_in_channels,
@@ -151,7 +151,7 @@ void convolution_forward_cuda(at::Tensor in_feat, at::Tensor out_feat,
     // scatter n_active_feats dense features into n_out_feats output features of
     // dimension n_out_channels
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        in_feat.type(), "convolution_forward_cuda", ([&] {
+        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
           scatter_kernel<scalar_t>
               <<<ceil((double)(n_active_feats * n_out_channels) / 256), 256>>>(
                   n_active_feats, n_out_feats, n_out_channels,
@@ -236,7 +236,7 @@ void convolution_backward_cuda(at::Tensor in_feat, at::Tensor grad_in_feat,
 
     // gather
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        in_feat.type(), "convolution_forward_cuda", ([&] {
+        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
           gather_kernel<scalar_t>
               <<<ceil((double)(n_active_feats * n_out_channels) / 256), 256>>>(
                   n_active_feats, n_out_feats, n_out_channels,
@@ -246,7 +246,7 @@ void convolution_backward_cuda(at::Tensor in_feat, at::Tensor grad_in_feat,
         }));
 
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        in_feat.type(), "convolution_forward_cuda", ([&] {
+        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
           gather_kernel<scalar_t>
               <<<ceil((double)(n_active_feats * n_in_channels) / 256), 256>>>(
                   n_active_feats, n_in_feats, n_in_channels,
@@ -264,7 +264,7 @@ void convolution_backward_cuda(at::Tensor in_feat, at::Tensor grad_in_feat,
 
     // scatter
     AT_DISPATCH_FLOATING_TYPES_AND_HALF(
-        in_feat.type(), "convolution_forward_cuda", ([&] {
+        in_feat.scalar_type(), "convolution_forward_cuda", ([&] {
           scatter_kernel<scalar_t>
               <<<ceil((double)(n_active_feats * n_in_channels) / 256), 256>>>(
                   n_active_feats, n_in_feats, n_in_channels,
